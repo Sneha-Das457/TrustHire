@@ -1,10 +1,11 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, email, string } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 import { admin } from "better-auth/plugins";
 import { UserRole } from "./generated/prisma/enums";
 import { hashedPassword, comparePassword } from "@/lib/bcrypt";
 import prisma from "@/lib/prisma";
+import sendEmailAction from "@/action/sendemail.action";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -40,6 +41,24 @@ export const auth = betterAuth({
       verify: comparePassword,
     },
   },
+
+  sendResetPassword: async ({
+    user,
+    url,
+  }: {
+    user: { email: string };
+    url: string;
+  }) => {
+    await sendEmailAction({
+      to: user.email,
+      subject: "Reset your password",
+      meta: {
+        description: "click the link below to reset your password",
+        link: url,
+      },
+    });
+  },
+
   session: {
     expiresIn: 24 * 60 * 60,
   },

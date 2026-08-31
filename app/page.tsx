@@ -1,69 +1,7 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, BadgeCheck, BriefcaseBusiness, Network, ShieldCheck } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+  return <main className="min-h-screen bg-[#f8fbfc] text-slate-900"><nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6"><Brand /><div className="flex gap-4 text-sm"><Link className="py-2 text-slate-600" href="/login">Sign in</Link><Link className="rounded-md bg-primary px-4 py-2 font-semibold text-white" href="/dashboard">Open workspace</Link></div></nav><section className="mx-auto grid max-w-7xl gap-12 px-6 pb-20 pt-16 lg:grid-cols-[1fr_.9fr] lg:items-center lg:pt-24"><div><div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50 px-3 py-1 text-xs font-semibold text-teal-700"><BadgeCheck className="size-4" /> Trusted referrals, clearer outcomes</div><h1 className="max-w-2xl text-5xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">Hiring works better through people who know the work.</h1><p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">TrustHire brings applicants, employees and hiring teams into one transparent referral workflow.</p><div className="mt-9 flex flex-wrap gap-3"><Link href="/dashboard" className="rounded-md bg-primary px-5 py-3 text-sm font-semibold text-white">Explore opportunities <ArrowRight className="ml-1 inline size-4" /></Link><Link href="/jobs" className="rounded-md border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700">Browse jobs</Link></div></div><div className="border border-slate-200 bg-white p-5 shadow-[0_16px_50px_rgba(15,23,42,.08)]"><div className="flex items-center justify-between border-b border-slate-100 pb-4"><Brand /><span className="rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-700">Referral available</span></div><div className="py-7"><p className="text-xs font-semibold uppercase tracking-[.14em] text-slate-400">Recommended role</p><h2 className="mt-2 text-2xl font-semibold">Senior Product Designer</h2><p className="mt-1 text-sm text-slate-500">Northstar Labs · Bengaluru · Hybrid</p></div><div className="flex items-center gap-3 rounded-md border border-teal-100 bg-teal-50/70 p-4"><div className="grid size-9 place-items-center rounded-full bg-teal-600 text-white"><Network className="size-4" /></div><div><p className="text-sm font-semibold">4 employees can refer you</p><p className="text-xs text-slate-500">Find the right connection before applying.</p></div></div></div></section><section className="border-y border-slate-200 bg-white"><div className="mx-auto grid max-w-7xl gap-8 px-6 py-8 sm:grid-cols-3">{[[BriefcaseBusiness,"Structured hiring","Every candidate and referral has a clear next step."],[Network,"Purposeful introductions","Referrals are contextual, accountable, and easy to track."],[ShieldCheck,"Trusted signals","Professional profiles provide the context to decide with confidence."]].map(([Icon,title,text]) => { const C=Icon as typeof BriefcaseBusiness; return <div key={title as string} className="flex gap-3"><C className="mt-0.5 size-5 text-primary"/><div><h2 className="font-semibold">{title as string}</h2><p className="mt-1 text-sm leading-6 text-slate-500">{text as string}</p></div></div>})}</div></section></main>;
 }
+function Brand() { return <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight"><span className="grid size-8 place-items-center rounded-md bg-primary text-sm font-bold text-white">T</span>TrustHire</Link>; }

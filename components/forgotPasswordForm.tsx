@@ -1,56 +1,12 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import React, { useState } from "react";
-import { toast } from "sonner";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 import { requestPasswordReset } from "@/lib/auth-client";
-
-export default function forgetPassword() {
-  const [isPending, setIsPending] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = String(formData.get("email"));
-    if (!email) {
-      return toast.error("Please provide your email");
-    }
-
-    await requestPasswordReset({
-      email,
-      redirectTo: "",
-      fetchOptions: {
-        onRequest: () => {
-          setIsPending(true);
-        },
-
-        onResponse: () => {
-          setIsPending(false);
-        },
-
-        onError: (ctx) => {
-          toast.error(ctx.error.message);
-        },
-
-        onSuccess: () => {
-          toast.success("Password reset link sent to your email");
-        },
-      },
-    });
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="max-w-sm w-full space-y-4">
-      <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
-        <Input type="email" id="email" name="email" />
-      </div>
-      <Button type="submit" disabled={isPending}>
-        Send reset link
-      </Button>
-    </form>
-  );
+import { AuthHeading, Field, PrimaryButton, SuccessPanel } from "@/components/auth-ui";
+export default function ForgetPasswordForm() {
+  const [email, setEmail] = useState(""); const [error, setError] = useState(""); const [isPending, setIsPending] = useState(false); const [sent, setSent] = useState(false);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) { e.preventDefault(); if (!/^\S+@\S+\.\S+$/.test(email)) { setError("Enter a valid email address."); return; } await requestPasswordReset({ email, redirectTo: "", fetchOptions: { onRequest: () => setIsPending(true), onResponse: () => setIsPending(false), onError: ctx => setError(ctx.error.message), onSuccess: () => setSent(true) } }); }
+  if (sent) return <SuccessPanel title="Check your email"><p>We&apos;ve sent password reset instructions to <span className="font-medium text-slate-700">{email}</span>.</p><p className="mt-3">Didn&apos;t get the email? Check your spam folder, then try again.</p><Link href="/auth/login" className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"><ArrowLeft className="size-4" />Back to login</Link></SuccessPanel>;
+  return <form onSubmit={handleSubmit} className="w-full space-y-6" noValidate><Link href="/auth/login" className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary"><ArrowLeft className="size-4" />Back to login</Link><AuthHeading title="Reset your password" description="Enter the email associated with your account and we’ll send you a link to reset your password." /><Field label="Email" type="email" name="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={e => { setEmail(e.target.value); setError(""); }} error={error} disabled={isPending} required /><PrimaryButton type="submit" pending={isPending} pendingText="Sending link…">Send reset link</PrimaryButton></form>;
 }
-

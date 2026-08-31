@@ -27,7 +27,7 @@ export default function signOutButton() {
         },
         onSuccess: () => {
           toast.success("Sign out successfully");
-          router.push("");
+          router.push("/auth/login");
         },
       },
     });

@@ -20,7 +20,7 @@ export default function signInOAuthButton({
     await signIn.social({
       provider,
       callbackURL: "",
-      errorCallbackURL: "",
+      errorCallbackURL: "/auth/login",
       fetchOptions: {
         onRequest: () => {
           setIsPending(true);

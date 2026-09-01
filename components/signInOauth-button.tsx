@@ -35,12 +35,12 @@ export default function signInOAuthButton({
     });
   }
 
-  const action = signUp ? "Up" : "In";
+  const action = signUp ? "Sign up" : "Sign in";
   const providerName = provider === "google" ? "Google" : "Github";
 
   return (
     <Button variant="outline" onClick={handleClick} disabled={isPending}>
-      sign{action} with {providerName}
+      {action} with {providerName}
     </Button>
   );
 }

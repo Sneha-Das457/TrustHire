@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import registerAction from "@/action/register.action";
+import SignInOAuthButton from "@/components/signInOauth-button";
 import {
   AuthHeading,
   Field,
@@ -133,6 +134,21 @@ export default function RegisterForm() {
       >
         Create account
       </PrimaryButton>
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <div className="relative flex justify-center">
+          <span className="bg-white px-3 text-sm text-slate-400">
+            or continue with
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <SignInOAuthButton provider="google" signUp={true} />
+        <SignInOAuthButton provider="github" signUp={true} />
+      </div>
       <p className="text-center text-sm text-slate-500">
         Already have an account?{" "}
         <Link

@@ -74,7 +74,7 @@ export default function LoginForm() {
           Remember me
         </label>
         <Link
-          href="/auth/forgotPassword"
+          href="/forgot-password"
           className="font-medium text-primary hover:underline"
         >
           Forgot password?
@@ -90,7 +90,7 @@ export default function LoginForm() {
       <p className="pt-1 text-center text-sm text-slate-500">
         Don&apos;t have an account?{" "}
         <Link
-          href="/auth/register"
+          href="/register"
           className="font-semibold text-primary hover:underline"
         >
           Create one

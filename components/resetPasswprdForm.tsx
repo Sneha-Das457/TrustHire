@@ -56,7 +56,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordProps) {
           your new password.
         </p>
         <Link
-          href="/auth/login"
+          href="/login"
           className="mt-7 flex h-11 w-full items-center justify-center rounded-md bg-primary px-4 text-[15px] font-semibold text-white shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
           Go to login
@@ -107,7 +107,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordProps) {
       </PrimaryButton>
       <p className="text-center text-sm text-slate-500">
         <Link
-          href="/auth/login"
+          href="/login"
           className="font-medium text-primary hover:underline"
         >
           Return to login

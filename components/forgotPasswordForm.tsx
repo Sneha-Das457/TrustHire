@@ -22,7 +22,7 @@ export default function ForgetPasswordForm() {
     }
     await requestPasswordReset({
       email,
-      redirectTo: "/auth/resetPassword",
+      redirectTo: "/reset-password",
       fetchOptions: {
         onRequest: () => setIsPending(true),
         onResponse: () => setIsPending(false),
@@ -42,7 +42,7 @@ export default function ForgetPasswordForm() {
           Didn&apos;t get the email? Check your spam folder, then try again.
         </p>
         <Link
-          href="/auth/login"
+          href="/login"
           className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
         >
           <ArrowLeft className="size-4" />
@@ -53,7 +53,7 @@ export default function ForgetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-6" noValidate>
       <Link
-        href="/auth/login"
+        href="/login"
         className="inline-flex items-center gap-1 text-sm font-medium text-slate-500 hover:text-primary"
       >
         <ArrowLeft className="size-4" />

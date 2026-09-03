@@ -10,7 +10,7 @@ export default async function resetPasswordPage({
   searchParams,
 }: ResetPasswordFormProps) {
   const token = (await searchParams).token;
-  if (!token) redirect("/login");
+  if (!token) redirect("/auth/login");
 
   return (
     <AuthLayout supportingText="Choose a secure new password and get back to your hiring workspace.">

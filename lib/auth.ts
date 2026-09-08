@@ -66,7 +66,6 @@ export const auth = betterAuth({
   plugins: [
     admin({
       defaultRole: UserRole.CANDIDATE,
-      adminRoles: [UserRole.COMPANY_ADMIN],
     }),
     nextCookies(),
   ],

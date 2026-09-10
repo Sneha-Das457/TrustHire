@@ -8,6 +8,8 @@ import prisma from "@/lib/prisma";
 import sendEmailAction from "@/action/sendemail.action";
 
 export const auth = betterAuth({
+  // Used to build OAuth provider callback URLs (for example, Google).
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),

@@ -24,6 +24,15 @@ enum WorkMode {
   ON_SITE
 }
 
+enum EmployeeType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERSHIP
+}
+
+
+
 enum JobStatus {
   DRAFT
   OPEN
@@ -47,6 +56,7 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]

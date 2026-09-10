@@ -31,8 +31,6 @@ enum EmployeeType {
   INTERSHIP
 }
 
-
-
 enum JobStatus {
   DRAFT
   OPEN
@@ -51,18 +49,39 @@ enum ApplicationStatus {
 }
 
 model User {
-  id            String    @id
+  id            String  @id
   name          String
-  email         String    @unique
-  emailVerified Boolean   @default(false)
+  email         String  @unique
+  emailVerified Boolean @default(false)
   image         String?
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  sessions       Session[]
+  accounts       Account[]
+  companyMembers CompanyMember[]
+  candidates     Candidate[]
 
   @@map("user")
+}
+
+model Candidate {
+  id     String @id
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  bio          String?
+  phone        String?
+  portfolioUrl String?
+  location     String?
+  githubUrl    String?
+  linkedinUrl  String?
+  resumeUrl    String?
+  experience   Int?
+  skills       String[]
+  applications ApplicationStatus[]
+
+  @@map("candidate")
 }
 
 model Company {
@@ -78,6 +97,7 @@ model Company {
 
 model CompanyMember {
   id        String   @id
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   companyId String
   role      UserRole
@@ -87,20 +107,20 @@ model CompanyMember {
 }
 
 model Job {
-  id          String   @id
-  companyId   String
-  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  location    String
-  workMode    WorkMode
-  experience  Int?
-  status      JobStatus @default(DRAFT)
-  employeeType EmployeeType?
-  allowsReferrals Boolean @default(true)
-  baseSalary  Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String        @id
+  companyId       String
+  company         Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title           String
+  description     String
+  location        String
+  workMode        WorkMode
+  experience      Int?
+  status          JobStatus     @default(DRAFT)
+  employeeType    EmployeeType?
+  allowsReferrals Boolean       @default(true)
+  baseSalary      Int?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model Session {

@@ -94,7 +94,10 @@ model Job {
   description String
   location    String
   workMode    WorkMode
-  Experience  Int?
+  experience  Int?
+  status      JobStatus @default(DRAFT)
+  employeeType EmployeeType?
+  allowsReferrals Boolean @default(true)
   baseSalary  Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

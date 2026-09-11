@@ -34,7 +34,7 @@ enum EmployeeType {
   FULL_TIME
   PART_TIME
   CONTRACT
-  INTERSHIP
+  INTERNSHIP
 }
 
 enum JobStatus {
@@ -54,7 +54,16 @@ enum ApplicationStatus {
   WITHDRAWN
 }
 
+enum ApplicationSource {
+  DIRECT
+  REFERRAL
+}
 
+enum ReferralStatus {
+  REFERRED
+  REJECTED
+  HIRED
+}
 
 model User {
   id            String  @id
@@ -62,20 +71,23 @@ model User {
   email         String  @unique
   emailVerified Boolean @default(false)
   image         String?
+  role UserRole @default(CANDIDATE)
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   sessions       Session[]
   accounts       Account[]
   companyMembers CompanyMember[]
-  candidates     Candidate[]
+  candidate Candidate?
 
   @@map("user")
 }
 
+
+
 model Candidate {
   id     String @id
-  userId String
+  userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   bio          String?
@@ -85,11 +97,26 @@ model Candidate {
   githubUrl    String?
   linkedinUrl  String?
   resumeUrl    String?
-  experience   Int?
-  skills       String[]
-  applications ApplicationStatus[]
+  experiences  Int?
+  applications Application[]
 
   @@map("candidate")
+}
+
+model Application {
+  id         String   @id @default(uuid())
+  candidateId String
+  jobId       String
+  jobSource   ApplicationSource @default(DIRECT)
+  status      ApplicationStatus @default(SUBMITTED)
+  resumeUrl   String?
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  job         Job       @relation(fields: [jobId], references: [id])
+  appliedAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([candidateId])
+
 }
 
 model Company {
@@ -110,7 +137,7 @@ model CompanyMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   companyId String
-  role      UserRole
+  role      CompanyRole
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@unique([userId, companyId])
@@ -129,6 +156,7 @@ model Job {
   employeeType    EmployeeType?
   allowsReferrals Boolean       @default(true)
   baseSalary      Int?
+  applications    Application[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }

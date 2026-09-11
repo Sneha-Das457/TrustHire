@@ -19,6 +19,12 @@ enum UserRole {
   COMPANY_ADMIN
 }
 
+enum CompanyRole {
+  EMPLOYEE
+  RECRUITER
+  COMPANY_ADMIN
+}
+
 enum WorkMode {
   REMOTE
   ON_SITE
@@ -47,6 +53,8 @@ enum ApplicationStatus {
   HIRED
   WITHDRAWN
 }
+
+
 
 model User {
   id            String  @id
@@ -89,6 +97,8 @@ model Company {
   name        String
   description String?
   website     String?
+  location    String?
+  industry    String?
   jobs        Job[]
   members     CompanyMember[]
   createdAt   DateTime        @default(now())

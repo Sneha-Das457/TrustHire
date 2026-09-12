@@ -49,6 +49,7 @@ enum ApplicationStatus {
   REVIEWING
   SHORTLISTED
   INTERVIEWING
+  OFFER
   REJECTED
   HIRED
   WITHDRAWN
@@ -59,37 +60,29 @@ enum ApplicationSource {
   REFERRAL
 }
 
-enum ReferralStatus {
-  REFERRED
-  REJECTED
-  HIRED
-}
-
 model User {
-  id            String  @id
+  id            String   @id
   name          String
-  email         String  @unique
-  emailVerified Boolean @default(false)
+  email         String   @unique
+  emailVerified Boolean  @default(false)
   image         String?
-  role UserRole @default(CANDIDATE)
+  role          UserRole @default(CANDIDATE)
 
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   sessions       Session[]
   accounts       Account[]
   companyMembers CompanyMember[]
-  candidate Candidate?
+  candidate      Candidate?
 
   @@map("user")
 }
 
-
-
 model Candidate {
-  id     String @id
+  id     String @id @default(uuid())
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  headline     String?
   bio          String?
   phone        String?
   portfolioUrl String?
@@ -97,37 +90,51 @@ model Candidate {
   githubUrl    String?
   linkedinUrl  String?
   resumeUrl    String?
-  experiences  Int?
+  resumeName   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  experiences  CandidateExperience[]
+  educations   CandidateEducation[]
+  skills       CandidateSkill[]
   applications Application[]
+  savedJobs    SavedJob[]
 
   @@map("candidate")
 }
 
 model Application {
-  id         String   @id @default(uuid())
+  id          String            @id @default(uuid())
   candidateId String
   jobId       String
-  jobSource   ApplicationSource @default(DIRECT)
+  source      ApplicationSource @default(DIRECT)
   status      ApplicationStatus @default(SUBMITTED)
+  coverLetter String?
   resumeUrl   String?
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
-  job         Job       @relation(fields: [jobId], references: [id])
-  referrals   Referral?
-  appliedAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  appliedAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
- @@unique([candidateId, jobId])
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  referral  Referral?
 
+  @@unique([candidateId, jobId])
+  @@index([jobId, status])
 }
 
 model Referral {
-  id           String   @id @default(uuid())
+  id              String   @id @default(uuid())
   companyMemberId String
-  applicationId String  @unique
-  referredAt DateTime @default(now())
-  companyMember CompanyMember @relation(fields: [companyMemberId], references: [id])
-  application Application @relation(fields: [applicationId], references: [id])
-  
+  applicationId   String   @unique
+  note            String?
+  referredAt      DateTime @default(now())
+
+  companyMember CompanyMember @relation(fields: [companyMemberId], references: [id], onDelete: Cascade)
+  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([companyMemberId, referredAt])
 }
 
 model Company {
@@ -144,14 +151,17 @@ model Company {
 }
 
 model CompanyMember {
-  id        String   @id
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  companyId String
-  role      CompanyRole
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  referrals Referral[]
-  annualReferralLimit Int @default(5)
+  id                  String      @id @default(uuid())
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String
+  companyId           String
+  role                CompanyRole
+  jobTitle            String?
+  department          String?
+  joinedAt            DateTime    @default(now())
+  company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  referrals           Referral[]
+  annualReferralLimit Int         @default(5)
 
   @@unique([userId, companyId])
 }
@@ -170,8 +180,85 @@ model Job {
   allowsReferrals Boolean       @default(true)
   baseSalary      Int?
   applications    Application[]
+  skills          JobSkill[]
+  savedBy         SavedJob[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+}
+
+model CandidateExperience {
+  id          String    @id @default(uuid())
+  candidateId String
+  company     String
+  jobTitle    String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model CandidateEducation {
+  id          String    @id @default(uuid())
+  candidateId String
+  institution String
+  degree      String?
+  field       String?
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+}
+
+model Skill {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  candidates CandidateSkill[]
+  jobs       JobSkill[]
+}
+
+model CandidateSkill {
+  id          String  @id @default(uuid())
+  candidateId String
+  skillId     String
+  level       String?
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill     Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, skillId])
+  @@index([skillId])
+}
+
+model JobSkill {
+  id       String  @id @default(uuid())
+  jobId    String
+  skillId  String
+  required Boolean @default(true)
+
+  job   Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  skill Skill @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, skillId])
+}
+
+model SavedJob {
+  id          String   @id @default(uuid())
+  candidateId String
+  jobId       String
+  createdAt   DateTime @default(now())
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, jobId])
 }
 
 model Session {

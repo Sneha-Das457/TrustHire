@@ -2,6 +2,8 @@
 
 import { auth } from "@/lib/auth";
 import { APIError } from "better-auth";
+import { UserRole } from "@/lib/generated/prisma/enums"
+import prisma from "@/lib/prisma";
 
 interface registerActionProps {
   name: string;
@@ -19,13 +21,15 @@ export default async function registerAction({
       return { error: "All fields are required" };
     }
 
-    await auth.api.signUpEmail({
+    const signUpResult = await auth.api.signUpEmail({
       body: {
         name,
         email,
         password,
       },
     });
+
+    
 
     return { error: null };
   } catch (err) {

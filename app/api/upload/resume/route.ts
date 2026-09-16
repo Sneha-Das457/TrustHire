@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_FILE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const ALLOWED_FILE_TYPES = new Set(["application/pdf"]);
 
 function getUploadError(error: unknown) {
   if (error instanceof Error && error.message) {
@@ -29,7 +29,7 @@ function getUploadError(error: unknown) {
     }
   }
 
-  return "An unknown error occured during the upload. Please try again later.";
+  return "Cloudinary upload failed. Please try again later.";
 }
 
 export async function POST(req: NextRequest) {
@@ -38,49 +38,48 @@ export async function POST(req: NextRequest) {
       headers: await headers(),
     });
 
-    if (session?.user?.id) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await req.formData();
-    const uploadFile = formData.get("file");
+    const uploadResume = formData.get("resume");
 
-    if (!(uploadFile instanceof File) || uploadFile.size === 0) {
+    if (!(uploadResume instanceof File) || uploadResume.size === 0) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
 
-    if (uploadFile.size > MAX_FILE_SIZE) {
+    if (uploadResume.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File size exceeds the maximum limit" },
         { status: 400 },
       );
     }
 
-    if (!ALLOWED_FILE_TYPES.has(uploadFile.type)) {
+    if (!ALLOWED_FILE_TYPES.has(uploadResume.type)) {
       return NextResponse.json(
-        {
-          error:
-            "Invalid file type. Only JPEG, PNG, and WebP images are allowed.",
-        },
+        { error: "Invalid file type. Only PDF files are allowed. " },
         { status: 400 },
       );
     }
 
-    const bytes = await uploadFile.arrayBuffer();
+    const bytes = await uploadResume.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
     const uploadResult = await new Promise<UploadApiResponse>(
       (resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: "trusthire/profile-images",
-            resource_type: "image",
+            folder: "trusthire/resumes",
+            resource_type: "raw",
           },
           (error, result) => {
             if (error) reject(error);
             else if (result) resolve(result);
             else
-              reject(new Error("Cloudinary did not return an upload result"));
+              reject(
+                new Error("Cloudinary upload failed. It returned no result"),
+              );
           },
         );
         uploadStream.end(buffer);
@@ -95,7 +94,6 @@ export async function POST(req: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
-    console.error("Image upload failed", error);
-    return NextResponse.json({ error: getUploadError(error) }, { status: 502 });
+    return NextResponse.json({ error: getUploadError(error) }, { status: 500 });
   }
 }

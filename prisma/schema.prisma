@@ -80,15 +80,15 @@ model Candidate {
   id     String @id @default(uuid())
   userId String @unique
 
-  headline     String?
+  resumeUrl    String
+  headline     String
+  location     String
+  resumeName   String? 
   bio          String?
   phone        String?
   portfolioUrl String?
-  location     String?
   githubUrl    String?
   linkedinUrl  String?
-  resumeUrl    String?
-  resumeName   String?
   isActive     Boolean  @default(true)
 
   createdAt DateTime @default(now())

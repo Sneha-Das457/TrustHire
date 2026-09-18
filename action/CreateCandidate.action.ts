@@ -29,14 +29,6 @@ export default async function createCandidateAction(
       return { error: "Unauthorized" };
     }
 
-    const headline = data.headline.trim();
-    const location = data.location.trim();
-    const resumeUrl = data.resumeUrl.trim();
-
-    if (!headline || !location || !resumeUrl) {
-      return { error: "Headline, location, and resume are required" };
-    }
-
     const existingCandidate = await prisma.candidate.findUnique({
       where: { userId: session.user.id },
       select: { id: true },
@@ -44,6 +36,14 @@ export default async function createCandidateAction(
 
     if (existingCandidate) {
       return { error: "Candidate profile already exists" };
+    }
+
+    const headline = data.headline.trim();
+    const location = data.location.trim();
+    const resumeUrl = data.resumeUrl.trim();
+
+    if (!headline || !location || !resumeUrl) {
+      return { error: "Headline, location, and resume are required" };
     }
 
     await prisma.$transaction([

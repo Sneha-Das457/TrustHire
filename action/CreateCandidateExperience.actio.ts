@@ -3,10 +3,10 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { APIError } from "better-auth";
-import { UserRole } from "@/lib/generated/prisma/enums";
+import { error } from "console";
 import { headers } from "next/headers";
 
-interface CandidateExperienceData {
+interface CandidateExperienceProps {
   company: string;
   position: string;
   description?: string;
@@ -16,7 +16,7 @@ interface CandidateExperienceData {
 }
 
 export default async function createCandidateExperienceAction(
-  data: CandidateExperienceData,
+  data: CandidateExperienceProps,
 ) {
   try {
     const session = await auth.api.getSession({
@@ -41,6 +41,14 @@ export default async function createCandidateExperienceAction(
 
     if (!candidateProfile.isActive) {
       return { error: "Candidate profile is not active" };
+    }
+
+    const company = data.company.trim();
+    const position = data.position.trim();
+    const stratDate = data.startDate;
+
+    if (!company || !position || stratDate) {
+      return { error: "These fields are required" };
     }
 
     const experience = await prisma.candidateExperience.create({

@@ -189,9 +189,9 @@ model CandidateExperience {
   id          String    @id @default(uuid())
   candidateId String
   company     String
-  jobTitle    String
-  description String?
+  position    String
   startDate   DateTime
+  description String?
   endDate     DateTime?
   isCurrent   Boolean   @default(false)
   createdAt   DateTime  @default(now())

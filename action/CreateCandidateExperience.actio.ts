@@ -2,8 +2,6 @@
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { APIError } from "better-auth";
-import { error } from "console";
 import { headers } from "next/headers";
 
 interface CandidateExperienceProps {
@@ -45,31 +43,37 @@ export default async function createCandidateExperienceAction(
 
     const company = data.company.trim();
     const position = data.position.trim();
-    const stratDate = data.startDate;
+    const startDate = data.startDate;
+    const endDate = data.isCurrent ? null : (data.endDate ?? null);
 
-    if (!company || !position || stratDate) {
-      return { error: "These fields are required" };
+    if (!company || !position || !startDate) {
+      return { error: "Company, position, and start date are required" };
     }
 
-    const experience = await prisma.candidateExperience.create({
+    if (!data.isCurrent && !endDate) {
+      return { error: "End date is required for a previous job" };
+    }
+
+    if (endDate && endDate < startDate) {
+      return { error: "End date cannot be earlier than start date" };
+    }
+
+    await prisma.candidateExperience.create({
       data: {
         candidate: {
           connect: { id: candidateProfile.id },
         },
-        company: data.company,
-        position: data.position,
+        company,
+        position,
         description: data.description?.trim() || null,
-        startDate: data.startDate,
-        endDate: data.endDate || null,
+        startDate,
+        endDate,
         isCurrent: data.isCurrent,
       },
     });
     return { error: null };
-  } catch (err) {
-    if (err instanceof APIError) {
-      return { error: err.message };
-    }
-
-    return { error: String(err) };
+  } catch (error) {
+    console.error("Could not create candidate experience", error);
+    return { error: "Could not create candidate experience. Please try again." };
   }
 }

@@ -5,5 +5,7 @@ import prisma from "@/lib/prisma";
 import { APIError } from "better-auth";
 import { headers } from "next/headers";
 
-
+interface editCandidateExperienceProps {
+    
+}
 

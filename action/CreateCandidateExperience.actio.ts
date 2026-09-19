@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { APIError } from "better-auth";
 import { headers } from "next/headers";
 
 interface CandidateExperienceProps {
@@ -72,8 +73,11 @@ export default async function createCandidateExperienceAction(
       },
     });
     return { error: null };
-  } catch (error) {
-    console.error("Could not create candidate experience", error);
-    return { error: "Could not create candidate experience. Please try again." };
+  } catch (err) {
+    if (err instanceof APIError) {
+      return { error: err.message };
+    }
+
+    return { error: String(err) };
   }
 }

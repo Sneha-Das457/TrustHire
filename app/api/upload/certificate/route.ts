@@ -4,10 +4,13 @@ import type { UploadApiResponse } from "cloudinary";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-export const runtime = "nodejs";
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const ALLOWED_FILE_TYPES = new Set(["application/pdf"]);
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = new Set([
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 function getUploadError(error: unknown) {
   if (error instanceof Error && error.message) {
@@ -43,34 +46,37 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const uploadResume = formData.get("resume");
+    const uploadCertificate = formData.get("certificate");
 
-    if (!(uploadResume instanceof File) || uploadResume.size === 0) {
+    if (!(uploadCertificate instanceof File) || uploadCertificate.size === 0) {
       return NextResponse.json({ error: "File is required" }, { status: 400 });
     }
 
-    if (uploadResume.size > MAX_FILE_SIZE) {
+    if (uploadCertificate.size > MAX_FILE_SIZE) {
       return NextResponse.json(
         { error: "File size exceeds the maximum limit" },
         { status: 400 },
       );
     }
 
-    if (!ALLOWED_FILE_TYPES.has(uploadResume.type)) {
+    if (!ALLOWED_FILE_TYPES.has(uploadCertificate.type)) {
       return NextResponse.json(
-        { error: "Invalid file type. Only PDF files are allowed. " },
+        {
+          error:
+            "Invalid file type. Only PDF, JPEG, PNG, and WebP files are allowed.",
+        },
         { status: 400 },
       );
     }
 
-    const bytes = await uploadResume.arrayBuffer();
+    const bytes = await uploadCertificate.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const uploadResumeResult = await new Promise<UploadApiResponse>(
+    const uploadCertificateResult = await new Promise<UploadApiResponse>(
       (resolve, reject) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {
-            folder: "trusthire/resumes",
+            folder: "trusthire/certificates",
             resource_type: "raw",
           },
           (error, result) => {
@@ -88,8 +94,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        public_id: uploadResumeResult.public_id,
-        url: uploadResumeResult.secure_url,
+        public_id: uploadCertificateResult.public_id,
+        url: uploadCertificateResult.secure_url,
       },
       { status: 200 },
     );

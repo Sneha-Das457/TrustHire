@@ -221,8 +221,9 @@ model CandidateEducation {
   startDate       DateTime
   endDate         DateTime?
   isCurrent       Boolean        @default(false)
-  certificateUrl  String?
-  certificateName String?
+  certificateUrl      String?
+  certificateName     String?
+  certificatePublicId String?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 

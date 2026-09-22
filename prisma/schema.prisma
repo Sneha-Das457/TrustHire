@@ -94,6 +94,7 @@ model Candidate {
   headline     String
   location     String
   resumeName   String?
+  resumePublicId  String?
   bio          String?
   phone        String?
   portfolioUrl String?

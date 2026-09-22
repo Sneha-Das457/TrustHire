@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { APIError } from "better-auth/api";
 import { UserRole } from "@/lib/generated/prisma/enums";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -9,6 +10,7 @@ interface CreateCandidateActionProps {
   headline: string;
   location: string;
   resumeUrl: string;
+  resumePublicId: string;
   resumeName?: string;
   bio?: string;
   phone?: string;
@@ -41,8 +43,9 @@ export default async function createCandidateAction(
     const headline = data.headline.trim();
     const location = data.location.trim();
     const resumeUrl = data.resumeUrl.trim();
+    const resumePublicId = data.resumePublicId.trim();
 
-    if (!headline || !location || !resumeUrl) {
+    if (!headline || !location || !resumeUrl || !resumePublicId) {
       return { error: "Headline, location, and resume are required" };
     }
 
@@ -53,6 +56,7 @@ export default async function createCandidateAction(
           headline,
           location,
           resumeUrl,
+          resumePublicId,
           resumeName: data.resumeName?.trim() || null,
           bio: data.bio?.trim() || null,
           phone: data.phone?.trim() || null,
@@ -68,8 +72,11 @@ export default async function createCandidateAction(
     ]);
 
     return { error: null };
-  } catch (error) {
-    console.error("Could not create candidate profile", error);
-    return { error: "Could not create candidate profile. Please try again." };
+  } catch (err) {
+    if (err instanceof APIError) {
+      return { error: err.message };
+    }
+
+    return { error: String(err) };
   }
 }

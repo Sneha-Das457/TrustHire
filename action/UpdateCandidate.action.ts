@@ -1,13 +1,15 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import cloudinary from "@/lib/cloudinary";
 import prisma from "@/lib/prisma";
 import { headers } from "next/headers";
 
 interface UpdateCandidateActionProps {
   headline: string;
   location: string;
-  resumeUrl: string;
+  resumeUrl?: string;
+  resumePublicId?: string;
   resumeName?: string;
   bio?: string;
   phone?: string;
@@ -28,14 +30,6 @@ export default async function updateCandidateAction(
       return { error: "Unauthorized" };
     }
 
-    const headline = data.headline.trim();
-    const location = data.location.trim();
-    const resumeUrl = data.resumeUrl.trim();
-
-    if (!headline || !location || !resumeUrl) {
-      return { error: "Headline, location, and resume are required" };
-    }
-
     const candidateProfile = await prisma.candidate.findUnique({
       where: {
         userId: session.user.id,
@@ -43,6 +37,9 @@ export default async function updateCandidateAction(
       select: {
         id: true,
         isActive: true,
+        resumeUrl: true,
+        resumeName: true,
+        resumePublicId: true,
       },
     });
 
@@ -53,13 +50,30 @@ export default async function updateCandidateAction(
     if (!candidateProfile.isActive) {
       return { error: "Candidate profile is not active" };
     }
+    const headline = data.headline.trim();
+    const location = data.location.trim();
+    const oldResumePublicId = candidateProfile.resumePublicId;
+    const newResumeUrl = data.resumeUrl?.trim() || undefined;
+    const newResumePublicId = data.resumePublicId?.trim() || undefined;
+
+    if (!headline || !location) {
+      return { error: "Headline and location are required" };
+    }
+
+    if (
+      (newResumeUrl && !newResumePublicId) ||
+      (!newResumeUrl && newResumePublicId)
+    ) {
+      return { error: "A new resume URL and public ID are both required" };
+    }
 
     await prisma.candidate.update({
       where: { id: candidateProfile.id },
       data: {
         headline,
         location,
-        resumeUrl,
+        resumeUrl: newResumeUrl || candidateProfile.resumeUrl,
+        resumePublicId: newResumePublicId || oldResumePublicId,
         resumeName: data.resumeName?.trim() || null,
         bio: data.bio?.trim() || null,
         phone: data.phone?.trim() || null,
@@ -68,6 +82,20 @@ export default async function updateCandidateAction(
         linkedinUrl: data.linkedinUrl?.trim() || null,
       },
     });
+
+    if (
+      oldResumePublicId &&
+      newResumePublicId &&
+      oldResumePublicId !== newResumePublicId
+    ) {
+      try {
+        await cloudinary.uploader.destroy(oldResumePublicId, {
+          resource_type: "raw",
+        });
+      } catch (cleanupError) {
+        console.error("Could not delete old resume", cleanupError);
+      }
+    }
 
     return { error: null };
   } catch (error) {

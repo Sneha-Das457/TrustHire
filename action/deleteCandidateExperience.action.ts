@@ -33,22 +33,16 @@ export default async function (data: { experienceId: string }) {
       return { error: "Candidate profile is not active" };
     }
 
-    const experience = await prisma.candidateExperience.findUnique({
+    const result = await prisma.candidateExperience.deleteMany({
       where: {
         id: data.experienceId,
+        candidateId: candidateProfile.id,
       },
     });
 
-    if (!experience || experience.candidateId !== candidateProfile.id) {
-      return { error: "experience not found or unauthorized" };
+    if (result.count === 0) {
+      return { error: "Experience record not found" };
     }
-
-    await prisma.candidateExperience.delete({
-      where: {
-        id: experience.id,
-      },
-    });
-
     return { error: null };
   } catch (err) {
     if (err instanceof APIError) {

@@ -73,8 +73,8 @@ export default async function updateCandidateAction(
       data: {
         headline,
         location,
-        resumeUrl: newResumeUrl || candidateProfile.resumeUrl,
-        resumePublicId: newResumePublicId || oldResumePublicId,
+        resumeUrl: newResumeUrl ,
+        resumePublicId: newResumePublicId ,
         resumeName: data.resumeName?.trim() || null,
         bio: data.bio?.trim() || null,
         phone: data.phone?.trim() || null,
@@ -93,8 +93,8 @@ export default async function updateCandidateAction(
         await cloudinary.uploader.destroy(oldResumePublicId, {
           resource_type: "raw",
         });
-      } catch (cleanupError) {
-        console.error("Could not delete old resume", cleanupError);
+      } catch (error) {
+        return { error: "Could not delete the old resume"}
       }
     }
 

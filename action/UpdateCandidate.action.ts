@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import cloudinary from "@/lib/cloudinary";
 import prisma from "@/lib/prisma";
+import { APIError } from "better-auth";
 import { headers } from "next/headers";
 
 interface UpdateCandidateActionProps {
@@ -98,8 +99,11 @@ export default async function updateCandidateAction(
     }
 
     return { error: null };
-  } catch (error) {
-    console.error("Could not update candidate profile", error);
-    return { error: "Could not update candidate profile. Please try again." };
+  } catch (err) {
+    if (err instanceof APIError) {
+      return { error: err.message };
+    }
+
+    return { error: String(err) };
   }
 }

@@ -53,3 +53,4 @@ export default async function (data: { candidateSkillId: string }) {
     return { error: String(err) };
   }
 }
+

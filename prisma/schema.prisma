@@ -58,6 +58,13 @@ enum ApplicationSource {
   REFERRAL
 }
 
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
 enum EducationLevel {
   SECONDARY
   HIGHER_SECONDARY
@@ -90,17 +97,17 @@ model Candidate {
   id     String @id @default(uuid())
   userId String @unique
 
-  resumeUrl    String
-  headline     String
-  location     String
-  resumeName   String?
-  resumePublicId  String?
-  bio          String?
-  phone        String?
-  portfolioUrl String?
-  githubUrl    String?
-  linkedinUrl  String?
-  isActive     Boolean @default(true)
+  resumeUrl      String
+  headline       String
+  location       String
+  resumeName     String?
+  resumePublicId String?
+  bio            String?
+  phone          String?
+  portfolioUrl   String?
+  githubUrl      String?
+  linkedinUrl    String?
+  isActive       Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -148,7 +155,7 @@ model Referral {
 }
 
 model Company {
-  id          String          @id
+  id          String              @id
   name        String
   description String?
   website     String?
@@ -156,24 +163,46 @@ model Company {
   industry    String?
   jobs        Job[]
   members     CompanyMember[]
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  invitation  CompanyInvitation[]
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+}
+
+model CompanyInvitation {
+  id              String           @id @default(uuid())
+  companyMemberId String
+  companyMember   CompanyMember    @relation(fields: [companyMemberId], references: [id], onDelete: Cascade)
+  companyId       String
+  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  tokenHash       String           @unique
+  status          InvitationStatus @default(PENDING)
+  expiresAt       DateTime
+  createdAt       DateTime         @default(now())
+  acceptedAt      DateTime?
+
+  @@index([companyMemberId, status])
 }
 
 model CompanyMember {
-  id                  String      @id @default(uuid())
-  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId              String
+  id                  String              @id @default(uuid())
+  userId              String?
+  user                User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
   companyId           String
+  company             Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  email               String
   role                CompanyRole
   jobTitle            String?
   department          String?
-  joinedAt            DateTime    @default(now())
-  company             Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  employeeId          String?
+  connectedAt         DateTime?
+  invitations         CompanyInvitation[]
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
   referrals           Referral[]
-  annualReferralLimit Int         @default(5)
+  annualReferralLimit Int                 @default(5)
 
   @@unique([userId, companyId])
+  @@unique([email, companyId])
 }
 
 model Job {
@@ -212,21 +241,21 @@ model CandidateExperience {
 }
 
 model CandidateEducation {
-  id              String         @id @default(uuid())
-  candidateId     String
-  institution     String
-  educationLevel  EducationLevel @default(OTHER)
-  degree          String
-  field           String?
-  grade           String?
-  startDate       DateTime
-  endDate         DateTime?
-  isCurrent       Boolean        @default(false)
+  id                  String         @id @default(uuid())
+  candidateId         String
+  institution         String
+  educationLevel      EducationLevel @default(OTHER)
+  degree              String
+  field               String?
+  grade               String?
+  startDate           DateTime
+  endDate             DateTime?
+  isCurrent           Boolean        @default(false)
   certificateUrl      String?
   certificateName     String?
   certificatePublicId String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 
   candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
 }

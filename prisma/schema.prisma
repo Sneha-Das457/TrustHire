@@ -169,17 +169,21 @@ model Company {
 }
 
 model CompanyInvitation {
-  id              String           @id @default(uuid())
-  companyMemberId String
-  companyMember   CompanyMember    @relation(fields: [companyMemberId], references: [id], onDelete: Cascade)
-  companyId       String
-  company         Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  tokenHash       String           @unique
-  status          InvitationStatus @default(PENDING)
-  expiresAt       DateTime
-  createdAt       DateTime         @default(now())
-  acceptedAt      DateTime?
+  id String @id @default(uuid())
 
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  companyMemberId String
+  companyMember   CompanyMember @relation(fields: [companyMemberId], references: [id], onDelete: Cascade)
+
+  tokenHash  String           @unique
+  status     InvitationStatus @default(PENDING)
+  expiresAt  DateTime
+  createdAt  DateTime         @default(now())
+  acceptedAt DateTime?
+
+  @@index([companyId, status])
   @@index([companyMemberId, status])
 }
 

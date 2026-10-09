@@ -73,7 +73,10 @@ export default async function createCompanyInvitationAction({
       },
     });
 
-    return { error: null };
+    return { 
+      error: null,
+      token
+    };
   } catch (err) {
     if (err instanceof APIError) {
       return { error: err.message };

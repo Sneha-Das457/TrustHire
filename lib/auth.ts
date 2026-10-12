@@ -37,7 +37,7 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 6,
     autoSignIn: false,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     password: {
       hash: hashedPassword,
       verify: comparePassword,
@@ -57,8 +57,24 @@ export const auth = betterAuth({
       meta: {
         description: "click the link below to reset your password",
         link: url,
+        buttonText: "Reset Password",
       },
     });
+  },
+
+  emailVerification: {
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmailAction({
+        to: user.email,
+        subject: "Verify your email",
+        meta: {
+          description: "click the link below to verify your email",
+          link: url,
+          buttonText: "Verify Email",
+        },
+      });
+    },
+    sendOnSignUp: true,
   },
 
   session: {
@@ -67,7 +83,7 @@ export const auth = betterAuth({
 
   plugins: [
     admin({
-      defaultRole: UserRole.DEAFAULT_USER,
+      defaultRole: UserRole.DEFAULT_USER,
     }),
     nextCookies(),
   ],

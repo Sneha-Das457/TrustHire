@@ -161,6 +161,8 @@ model Company {
   website     String?
   location    String?
   industry    String?
+  externalId  String?
+  source      String?
   jobs        Job[]
   members     CompanyMember[]
   invitation  CompanyInvitation[]

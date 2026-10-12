@@ -5,6 +5,7 @@ import transporter from "@/lib/nodemailer";
 interface MetaDataProps {
   description: string;
   link: string;
+  buttonText: string;
 }
 
 interface SendEmailActionProps {
@@ -46,7 +47,7 @@ export default async function sendEmailAction({
         </p>
 
         <a href="${meta.link}" style="${styles.button}">
-          Reset Password
+          ${meta.buttonText}
         </a>
 
         <p style="${styles.footer}">

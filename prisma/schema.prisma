@@ -23,6 +23,19 @@ enum CompanyRole {
   COMPANY_ADMIN
 }
 
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum CompanyMemberVerificationStatus {
+  PENDING
+  EMAIL_VERIFIED
+  APPROVED
+  REVOKED
+}
+
 enum WorkMode {
   REMOTE
   ON_SITE
@@ -56,13 +69,6 @@ enum ApplicationStatus {
 enum ApplicationSource {
   DIRECT
   REFERRAL
-}
-
-enum InvitationStatus {
-  PENDING
-  ACCEPTED
-  EXPIRED
-  REVOKED
 }
 
 enum EducationLevel {
@@ -155,60 +161,44 @@ model Referral {
 }
 
 model Company {
-  id          String              @id
-  name        String
-  description String?
-  website     String?
-  location    String?
-  industry    String?
-  externalId  String?
-  source      String?
-  jobs        Job[]
-  members     CompanyMember[]
-  invitation  CompanyInvitation[]
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-}
-
-model CompanyInvitation {
-  id String @id @default(uuid())
-
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  companyMemberId String
-  companyMember   CompanyMember @relation(fields: [companyMemberId], references: [id], onDelete: Cascade)
-
-  tokenHash  String           @unique
-  status     InvitationStatus @default(PENDING)
-  expiresAt  DateTime
-  createdAt  DateTime         @default(now())
-  acceptedAt DateTime?
-
-  @@index([companyId, status])
-  @@index([companyMemberId, status])
+  id             String          @id
+  name           String
+  description    String?
+  website        String?
+  location       String?
+  industry       String?
+  approvedDomain String?         @unique
+  status         CompanyStatus   @default(PENDING)
+  jobs           Job[]
+  members        CompanyMember[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model CompanyMember {
-  id                  String              @id @default(uuid())
+  id                  String                          @id @default(uuid())
   userId              String?
-  user                User?               @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user                User?                           @relation(fields: [userId], references: [id], onDelete: SetNull)
   companyId           String
-  company             Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company             Company                         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   email               String
   role                CompanyRole
   jobTitle            String?
   department          String?
   employeeId          String?
   connectedAt         DateTime?
-  invitations         CompanyInvitation[]
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  verificationStatus  CompanyMemberVerificationStatus @default(PENDING)
+  workEmailVerifiedAt DateTime?
+  approvedAt          DateTime?
+  revokedAt           DateTime?
+  createdAt           DateTime                        @default(now())
+  updatedAt           DateTime                        @updatedAt
   referrals           Referral[]
-  annualReferralLimit Int                 @default(5)
+  annualReferralLimit Int                             @default(5)
 
   @@unique([userId, companyId])
   @@unique([email, companyId])
+  @@index([companyId, verificationStatus])
 }
 
 model Job {

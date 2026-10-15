@@ -162,18 +162,27 @@ model Referral {
 }
 
 model Company {
-  id             String          @id
-  name           String
-  description    String?
-  website        String?
-  location       String?
-  industry       String?
-  approvedDomain String?         @unique
-  status         CompanyStatus   @default(PENDING)
-  jobs           Job[]
-  members        CompanyMember[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id                   String        @id
+  name                 String
+  website              String?
+  location             String?
+  industry             String?
+  description          String?
+
+  country              String?
+  registrationNumber   String?
+  registryVerifiedAt   DateTime?
+
+  approvedDomain       String?       @unique
+  dnsVerificationToken String?
+  dnsVerifiedAt        DateTime?
+
+  status               CompanyStatus @default(PENDING)
+
+  jobs                 Job[]
+  members              CompanyMember[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 }
 
 model CompanyMember {

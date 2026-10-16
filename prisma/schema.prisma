@@ -173,7 +173,7 @@ model Company {
   registrationNumber   String?
   registryVerifiedAt   DateTime?
 
-  approvedDomain       String?       @unique
+  domain               String?        @unique
   dnsVerificationToken String?
   dnsVerifiedAt        DateTime?
 
